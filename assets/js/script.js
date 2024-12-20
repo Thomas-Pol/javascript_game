@@ -9,6 +9,9 @@ let positionY = speelveld.clientHeight / 2 - 25;
 let bulletCenterX = speelveld.clientWidth / 2 - 2.5; 
 let bulletCenterY = speelveld.clientHeight / 2 - 2.5;
 
+let lastMouseXPosition = 0;
+let lastMouseYPosition = 0;
+
 const walkingspeed = 3; 
 const bulletSpeed = 5;
 const keys = {};
@@ -25,7 +28,7 @@ function updatePosition() {
   if (keys['a']) positionX -= walkingspeed, bulletCenterX -= walkingspeed;
   if (keys['d']) positionX += walkingspeed, bulletCenterX += walkingspeed;
 
-  // zorgt ervoor dat de speler niet buiten het beeldscherm kan komen
+  // zorgt ervoor dat de speler/shietpunt niet buiten het beeldscherm kan komen
   positionX = Math.max(0, Math.min(speelveld.clientWidth - 50, positionX));
   positionY = Math.max(0, Math.min(speelveld.clientHeight - 50, positionY));
 
@@ -42,10 +45,10 @@ function updateBullets() {
     bulletData.x += Math.cos(bulletData.angle) * bulletSpeed;
     bulletData.y += Math.sin(bulletData.angle) * bulletSpeed;
 
-    // Update bullet DOM position
+    // update de positie van de kogel
     bulletData.element.style.transform = `translate(${bulletData.x}px, ${bulletData.y}px)`;
 
-    // Remove bullets that are out of bounds
+    // haalt de kogel weg als deze buiten het speelveld komt
     const bulletOutsideField = bulletData.x >= 0 && bulletData.x <= speelveld.clientWidth - 10 &&
            bulletData.y >= 0 && bulletData.y <= speelveld.clientHeight - 10;
     
@@ -59,19 +62,29 @@ function updateBullets() {
   });
 }
 
-// Main animation loop
-function animationLoop() {
-  updatePosition();
-  updateBullets();
-  requestAnimationFrame(animationLoop);
+function followMouseUpdate() {
+
+  if(lastMouseXPosition != 0 && lastMouseYPosition != 0) {
+  // het middenpunt van het wapen
+  let weaponCenterX = positionX + 25; 
+  let weaponCenterY = positionY + 25;
+
+  // berekent de hoek van de muis ten opzichte van het wapen
+  let weaponAngle = Math.atan2(lastMouseYPosition - weaponCenterY, lastMouseXPosition - weaponCenterX);
+
+  // zorgt ervoor dat het wapen de muis volgt
+  weapon.style.transform = `rotate(${weaponAngle}rad)`;
+
+  }
+
 }
 
-// Shoot a bullet
+// =kogels schieten
 function shootBullet(targetX, targetY) {
-  // Calculate angle to target
+  // zorgt er voor dat de kogel met de goede angle weg schieten
   const angle = Math.atan2(targetY - bulletCenterY, targetX - bulletCenterX);
 
-  // Create a new bullet element
+  // maakt een nieuwe kogel element aan
   const newBullet = document.createElement('div');
   newBullet.id = `bullet${bulletCounter}`;
   newBullet.className = 'bullet';
@@ -83,7 +96,7 @@ function shootBullet(targetX, targetY) {
   newBullet.style.transform = `translate(${bulletCenterX}px, ${bulletCenterY}px)`;
   speelveld.appendChild(newBullet);
 
-  // Add the bullet to the array
+  // zet de kogel in de bullets array
   bullets.push({
     element: newBullet,
     idName: newBullet.id,
@@ -95,10 +108,7 @@ function shootBullet(targetX, targetY) {
   bulletCounter += 1;
 }
 
-// Start the animation loop
-animationLoop();
-
-// Listen for key presses
+// wordt uit gevoerd of een toets wordt in gedrukt of wordt los gelaten
 window.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 });
@@ -107,23 +117,27 @@ window.addEventListener('keyup', (e) => {
   keys[e.key] = false;
 });
 
-// Track the mouse and rotate the weapon
+// laat het wapen de muis volgen
 window.addEventListener('mousemove', (e) => {
+
     const mouseX = e.clientX;
     const mouseY = e.clientY;
 
-    // Calculate the center of the player
+    lastMouseXPosition = e.clientX;
+    lastMouseYPosition = e.clientY;
+
+    // het middenpunt van het wapen
     let weaponCenterX = positionX + 25; 
     let weaponCenterY = positionY + 25;
 
-    // Calculate the angle to the mouse
+    // berekent de hoek van de muis ten opzichte van het wapen
     let weaponAngle = Math.atan2(mouseY - weaponCenterY, mouseX - weaponCenterX);
 
-    // Rotate the weapon
+    // zorgt ervoor dat het wapen de muis volgt
     weapon.style.transform = `rotate(${weaponAngle}rad)`;
 });
 
-// Fire a bullet on mouse click
+// als er wordt geklikt wordt er een kogel geschoten
 window.addEventListener('click', (e) => {
 
   const mouseX = e.clientX;
@@ -131,3 +145,14 @@ window.addEventListener('click', (e) => {
 
   shootBullet(mouseX, mouseY);
 });
+
+// loop voor de animaties
+function animationLoop() {
+  updatePosition();
+  updateBullets();
+  followMouseUpdate();
+  requestAnimationFrame(animationLoop);
+}
+
+// start de loop van de animaties
+animationLoop();
