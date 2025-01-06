@@ -6,6 +6,9 @@ const bullet = document.getElementById('bullet');
 let positionX = speelveld.clientWidth / 2 - 25; 
 let positionY = speelveld.clientHeight / 2 - 25;
 
+let lastPositionX = 0;
+let lastPositionY = 0;
+
 let bulletCenterX = speelveld.clientWidth / 2 - 2.5; 
 let bulletCenterY = speelveld.clientHeight / 2 - 2.5;
 
@@ -13,13 +16,26 @@ let lastMouseXPosition = 0;
 let lastMouseYPosition = 0;
 
 const walkingspeed = 3; 
-const bulletSpeed = 5;
+const bulletSpeed = 7;
 const keys = {};
 
 let bulletCounter = 0;
 
-// array om de kogels te bewaren
 var bullets = [];
+
+var enemys = [];
+let totalEnemys = 0;
+
+class enemy {
+  constructor(positionX, positionY, speed, healtPoint, type) {
+      this.positionX = positionX;
+      this.positionY = positionY;
+      this.speed = speed;
+      this.healtPoint = healtPoint;
+      this.type = type;
+  }
+
+}
 
 // functie om de positie van de speler te updaten
 function updatePosition() {
@@ -32,8 +48,11 @@ function updatePosition() {
   positionX = Math.max(0, Math.min(speelveld.clientWidth - 50, positionX));
   positionY = Math.max(0, Math.min(speelveld.clientHeight - 50, positionY));
 
-  bulletCenterX = Math.max(25, Math.min(speelveld.clientWidth - 50, bulletCenterX));
-  bulletCenterY = Math.max(25, Math.min(speelveld.clientHeight - 50, bulletCenterY));
+  bulletCenterX = Math.max(25, Math.min(speelveld.clientWidth - 25, bulletCenterX));
+  bulletCenterY = Math.max(25, Math.min(speelveld.clientHeight - 25, bulletCenterY));
+
+  lastPositionX = positionX;
+  lastPositionY = positionY;
 
   speler.style.transform = `translate(${positionX}px, ${positionY}px)`;
 }
@@ -49,16 +68,56 @@ function updateBullets() {
     bulletData.element.style.transform = `translate(${bulletData.x}px, ${bulletData.y}px)`;
 
     // haalt de kogel weg als deze buiten het speelveld komt
-    const bulletOutsideField = bulletData.x >= 0 && bulletData.x <= speelveld.clientWidth - 10 &&
-           bulletData.y >= 0 && bulletData.y <= speelveld.clientHeight - 10;
-    
-    if (!bulletOutsideField) { 
+    const bulletOutsideField = bulletData.x <= 0 && bulletData.x >= speelveld.clientWidth - 10 &&
+           bulletData.y <= 0 && bulletData.y >= speelveld.clientHeight - 10;
+      
+    let bulletHitEnemy = false;
+
+    enemys.forEach(enemyData => {
+      if(bulletData.x >= enemyData.x && bulletData.x <= enemyData.x + 30 && bulletData.y >= enemyData.y && bulletData.y <= enemyData.y + 30) {
+        enemyData.healtPoint -= 10;
+        console.log(enemyData.healtPoint);
+
+        const bulletToRemove = document.getElementById(bulletData.idName);
+        if (bulletToRemove) bulletToRemove.remove();
+
+        bulletHitEnemy = true;
+
+        if(enemyData.healtPoint <= 0) {
+          const enemyToRemove = document.getElementById(enemyData.idName);
+          if (enemyToRemove) enemyToRemove.remove();
+        }
+      }
+    });
+
+    if (bulletOutsideField || bulletHitEnemy) { 
       const bulletToRemove = document.getElementById(bulletData.idName);
-      bulletToRemove.remove();
+      if (bulletToRemove) bulletToRemove.remove();
+      return false;
     }
 
-    return bulletOutsideField;
+    return true;
 
+  });
+}
+
+function updateEnemyPosition() {
+  enemys = enemys.filter(enemyData => {
+  
+    enemyAngleCheck = Math.atan2(lastPositionY - enemyData.y, lastPositionX - enemyData.x);
+
+    if(enemyData.angle == enemyAngleCheck) { 
+      enemyData.x += Math.cos(enemyData.angle) * enemyData.speed;
+      enemyData.y += Math.sin(enemyData.angle) * enemyData.speed;
+    } else {
+      enemyData.x += Math.cos(enemyAngleCheck) * enemyData.speed;
+      enemyData.y += Math.sin(enemyAngleCheck) * enemyData.speed;
+    }
+
+    // update de positie van de vijand
+    enemyData.element.style.transform = `translate(${enemyData.x}px, ${enemyData.y}px)`;
+
+    return true;
   });
 }
 
@@ -146,13 +205,69 @@ window.addEventListener('click', (e) => {
   shootBullet(mouseX, mouseY);
 });
 
+// functie om vijanden te spawnen
+function enemySpawn(lastPositionX, lastPositionY) {
+
+  const newEnemy = new enemy(150, 150, 1, 100, "normal");
+  enemyAngle = Math.atan2(lastPositionY - newEnemy.positionY, lastPositionX- newEnemy.positionX);
+  console.log(newEnemy);
+
+  const newEnemySpawn = document.createElement('div');
+  newEnemySpawn.id = `enemy${totalEnemys}`;
+  newEnemySpawn.className = 'enemy';
+  newEnemySpawn.style.position = 'absolute';
+  newEnemySpawn.style.width = '30px';
+  newEnemySpawn.style.height = '30px';
+  newEnemySpawn.style.backgroundColor = 'green';
+  newEnemySpawn.style.transform = `translate(${newEnemy.positionX}px, ${newEnemy.positionX}px)`;
+  speelveld.appendChild(newEnemySpawn);
+
+  enemys.push({
+    element: newEnemySpawn,
+    idName: newEnemySpawn.id,
+    x: newEnemy.positionX,
+    y: newEnemy.positionY,
+    speed: newEnemy.speed,
+    healtPoint: newEnemy.healtPoint,
+    angle: enemyAngle
+  });
+
+  totalEnemys += 1;	
+
+  const newEnemys = new enemy(210, 210, 1, 100, "normal");
+  console.log(newEnemys);
+
+  const newEnemySpawns = document.createElement('div');
+  newEnemySpawns.id = `enemy${totalEnemys}`;
+  newEnemySpawns.className = 'enemy';
+  newEnemySpawns.style.position = 'absolute';
+  newEnemySpawns.style.width = '30px';
+  newEnemySpawns.style.height = '30px';
+  newEnemySpawns.style.backgroundColor = 'green';
+  newEnemySpawns.style.transform = `translate(${newEnemys.positionX}px, ${newEnemys.positionX}px)`;
+  speelveld.appendChild(newEnemySpawns);
+
+  enemys.push({
+    element: newEnemySpawns,
+    idName: newEnemySpawns.id,
+    x: newEnemys.positionX,
+    y: newEnemys.positionY,
+    speed: newEnemys.speed,
+    healtPoint: newEnemys.healtPoint,
+    angle: enemyAngle
+  });
+  
+}
+
 // loop voor de animaties
 function animationLoop() {
   updatePosition();
   updateBullets();
+  updateEnemyPosition();
   followMouseUpdate();
   requestAnimationFrame(animationLoop);
 }
 
 // start de loop van de animaties
 animationLoop();
+enemySpawn(lastPositionX, lastPositionY);
