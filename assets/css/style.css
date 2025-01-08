@@ -6,11 +6,85 @@ body {
     overflow: hidden;
 }
 
+#pause-container {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+}
+
+#pause-menu {
+    width: 30%;
+    height: 30%;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#paused-text {
+    width: 100%;
+    height: 20%;
+    text-align: center;
+    font-size: 30px;
+}
+
+.pause-buttons {
+    width: 25%;
+    height: 15%;
+}
+
 #playing-field {
     width: 100vw;
     height: 100vh;
     background-color: rgb(240, 240, 240);
     overflow: hidden;
+}
+
+#xp-container {
+    position: absolute;
+    margin-top: 3%;
+    margin-left: 2%;
+    width: 20%;
+    height: 3%;
+    border-radius: 7px;
+    border: 1px solid black;
+}
+
+#xp-progression {
+    position: absolute;
+    background-color: green;
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+}
+
+#playerLvl {
+    margin: 0;
+    width: 95%;
+    height: 100%;
+    text-align: right;
+    position: absolute;
+    font-size: 15px;
+    font-family: monospace;
+    user-select: none;
+}
+
+#wave-container {
+    position: absolute;
+    margin-top: 1%;
+    margin-left: 2%;
+    font-size: 20px;
+    font-family: monospace;
+    user-select: none;
 }
 
 #playerBase {

@@ -11,7 +11,21 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="pause-container">
+        <div id="pause-menu">
+            <h1 id="paused-text">Paused</h1>
+            <button class="pause-buttons" id="resume-button" onclick="pausedGame('resume')">Resume</button>
+            <button class="pause-buttons" id="restart-button" onclick="pausedGame('restart')">Restart</button>
+            <button class="pause-buttons" id="quit-button" onclick="pausedGame('quit')">Quit</button>
+        </div>	
+    </div>
     <div id="playing-field">
+        <div id="xp-container">
+            <div id="xp-progression">
+            </div>
+            <p id="playerLvl">LVL: 1</p>
+        </div>
+        <div id="wave-container">Wave: 1</div>
         <div id="playerBase">
             <div id="player">
                 <img id="playerSantaHat" src="assets/img/santahat-removebg-preview.png" alt="">

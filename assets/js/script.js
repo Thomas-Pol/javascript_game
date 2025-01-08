@@ -1,5 +1,8 @@
+let pauseGame = false;
+
 const speler = document.getElementById('playerBase');
 const speelveld = document.getElementById('playing-field');
+const pauseScreen = document.getElementById('pause-container');
 const weapon = document.getElementById('player');
 const bullet = document.getElementById('bullet');
 
@@ -15,16 +18,27 @@ let bulletCenterY = speelveld.clientHeight / 2 - 2.5;
 let lastMouseXPosition = 0;
 let lastMouseYPosition = 0;
 
-const walkingspeed = 3; 
-const bulletSpeed = 7;
-const keys = {};
+let walkingspeed = 3; 
+let bulletSpeed = 7;
+let keys = {};
 
 let bulletCounter = 0;
+let bullets = [];
 
-var bullets = [];
-
-var enemys = [];
+let enemys = [];
 let totalEnemys = 0;
+
+let currentWave = 1;
+let enemyToSpawn = 10;
+let enemysAlive = enemyToSpawn;
+
+let playerHealt = 100;
+let playerLvl = 1;
+let playerXp = 0;
+let playerXpToNextLvl = 100;
+let coins = 0;
+
+var lastTime = 0;
 
 class enemy {
   constructor(positionX, positionY, speed, healtPoint, type) {
@@ -35,6 +49,61 @@ class enemy {
       this.type = type;
   }
 
+}
+
+// wordt uit gevoerd of een toets wordt in gedrukt of wordt los gelaten
+window.addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+  if	(e.key == 'Escape' && pauseGame == false) {
+    pauseGame = true;
+    pauseScreen.style.display = 'flex';
+  } else if (e.key == 'Escape' && pauseGame == true) {
+    pauseGame = false;
+    pauseScreen.style.display = 'none';
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+// laat het wapen de muis volgen
+window.addEventListener('mousemove', (e) => {
+  if (pauseGame	== false) { 
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    lastMouseXPosition = e.clientX;
+    lastMouseYPosition = e.clientY;
+
+    // het middenpunt van het wapen
+    let weaponCenterX = positionX + 25; 
+    let weaponCenterY = positionY + 25;
+
+    // berekent de hoek van de muis ten opzichte van het wapen
+    let weaponAngle = Math.atan2(mouseY - weaponCenterY, mouseX - weaponCenterX);
+
+    // zorgt ervoor dat het wapen de muis volgt
+    weapon.style.transform = `rotate(${weaponAngle}rad)`;
+  }
+});
+
+// als er wordt geklikt wordt er een kogel geschoten
+window.addEventListener('click', (e) => {
+  if (pauseGame == false) { 
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    shootBullet(mouseX, mouseY);
+  }
+
+});
+
+function pausedGame(buttonName) {
+  if (buttonName == 'resume') {
+    pauseGame = false;
+    pauseScreen.style.display = 'none';
+  }
 }
 
 // functie om de positie van de speler te updaten
@@ -74,18 +143,15 @@ function updateBullets() {
     let bulletHitEnemy = false;
 
     enemys.forEach(enemyData => {
+      
       if(bulletData.x >= enemyData.x && bulletData.x <= enemyData.x + 30 && bulletData.y >= enemyData.y && bulletData.y <= enemyData.y + 30) {
         enemyData.healtPoint -= 10;
-        console.log(enemyData.healtPoint);
-
         const bulletToRemove = document.getElementById(bulletData.idName);
         if (bulletToRemove) bulletToRemove.remove();
-
+        
         bulletHitEnemy = true;
-
         if(enemyData.healtPoint <= 0) {
-          const enemyToRemove = document.getElementById(enemyData.idName);
-          if (enemyToRemove) enemyToRemove.remove();
+          removeEnemy(enemys.indexOf(enemyData), enemyData.idName);
         }
       }
     });
@@ -140,77 +206,49 @@ function followMouseUpdate() {
 
 // =kogels schieten
 function shootBullet(targetX, targetY) {
-  // zorgt er voor dat de kogel met de goede angle weg schieten
-  const angle = Math.atan2(targetY - bulletCenterY, targetX - bulletCenterX);
+  if(pauseGame == false) {
+    // zorgt er voor dat de kogel met de goede angle weg schieten
+    const angle = Math.atan2(targetY - bulletCenterY, targetX - bulletCenterX);
 
-  // maakt een nieuwe kogel element aan
-  const newBullet = document.createElement('div');
-  newBullet.id = `bullet${bulletCounter}`;
-  newBullet.className = 'bullet';
-  newBullet.style.position = 'absolute';
-  newBullet.style.width = '5px';
-  newBullet.style.height = '5px';
-  newBullet.style.backgroundColor = 'red';
-  newBullet.style.borderRadius = '50%';
-  newBullet.style.transform = `translate(${bulletCenterX}px, ${bulletCenterY}px)`;
-  speelveld.appendChild(newBullet);
+    // maakt een nieuwe kogel element aan
+    const newBullet = document.createElement('div');
+    newBullet.id = `bullet${bulletCounter}`;
+    newBullet.className = 'bullet';
+    newBullet.style.position = 'absolute';
+    newBullet.style.width = '5px';
+    newBullet.style.height = '5px';
+    newBullet.style.backgroundColor = 'red';
+    newBullet.style.borderRadius = '50%';
+    newBullet.style.transform = `translate(${bulletCenterX}px, ${bulletCenterY}px)`;
+    speelveld.appendChild(newBullet);
 
-  // zet de kogel in de bullets array
-  bullets.push({
-    element: newBullet,
-    idName: newBullet.id,
-    x: bulletCenterX,
-    y: bulletCenterY,
-    angle: angle
-  });
+    // zet de kogel in de bullets array
+    bullets.push({
+      element: newBullet,
+      idName: newBullet.id,
+      x: bulletCenterX,
+      y: bulletCenterY,
+      angle: angle
+    });
 
-  bulletCounter += 1;
+    bulletCounter += 1;
+  }
 }
 
-// wordt uit gevoerd of een toets wordt in gedrukt of wordt los gelaten
-window.addEventListener('keydown', (e) => {
-  keys[e.key] = true;
-});
-
-window.addEventListener('keyup', (e) => {
-  keys[e.key] = false;
-});
-
-// laat het wapen de muis volgen
-window.addEventListener('mousemove', (e) => {
-
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    lastMouseXPosition = e.clientX;
-    lastMouseYPosition = e.clientY;
-
-    // het middenpunt van het wapen
-    let weaponCenterX = positionX + 25; 
-    let weaponCenterY = positionY + 25;
-
-    // berekent de hoek van de muis ten opzichte van het wapen
-    let weaponAngle = Math.atan2(mouseY - weaponCenterY, mouseX - weaponCenterX);
-
-    // zorgt ervoor dat het wapen de muis volgt
-    weapon.style.transform = `rotate(${weaponAngle}rad)`;
-});
-
-// als er wordt geklikt wordt er een kogel geschoten
-window.addEventListener('click', (e) => {
-
-  const mouseX = e.clientX;
-  const mouseY = e.clientY;
-
-  shootBullet(mouseX, mouseY);
-});
-
 // functie om vijanden te spawnen
-function enemySpawn(lastPositionX, lastPositionY) {
+function enemySpawn() {
 
-  const newEnemy = new enemy(150, 150, 1, 100, "normal");
+  spawnPositionX = Math.random() * speelveld.clientWidth;
+  spawnPositionY = Math.random() * speelveld.clientHeight;
+ if (spawnPositionX >= positionX- 30 && spawnPositionX <= positionX + 80) {
+    spawnPositionX += 150;
+ }
+ if(spawnPositionY >= positionY - 30 && spawnPositionY <= positionY + 80) {
+    spawnPositionY += 150;
+ }
+
+  const newEnemy = new enemy(spawnPositionX, spawnPositionY, 0.5, 100, "normal");
   enemyAngle = Math.atan2(lastPositionY - newEnemy.positionY, lastPositionX- newEnemy.positionX);
-  console.log(newEnemy);
 
   const newEnemySpawn = document.createElement('div');
   newEnemySpawn.id = `enemy${totalEnemys}`;
@@ -219,6 +257,7 @@ function enemySpawn(lastPositionX, lastPositionY) {
   newEnemySpawn.style.width = '30px';
   newEnemySpawn.style.height = '30px';
   newEnemySpawn.style.backgroundColor = 'green';
+  newEnemySpawn.style.pointerEvents = 'none';
   newEnemySpawn.style.transform = `translate(${newEnemy.positionX}px, ${newEnemy.positionX}px)`;
   speelveld.appendChild(newEnemySpawn);
 
@@ -233,41 +272,72 @@ function enemySpawn(lastPositionX, lastPositionY) {
   });
 
   totalEnemys += 1;	
+  enemyToSpawn -= 1;	
 
-  const newEnemys = new enemy(210, 210, 1, 100, "normal");
-  console.log(newEnemys);
+}
 
-  const newEnemySpawns = document.createElement('div');
-  newEnemySpawns.id = `enemy${totalEnemys}`;
-  newEnemySpawns.className = 'enemy';
-  newEnemySpawns.style.position = 'absolute';
-  newEnemySpawns.style.width = '30px';
-  newEnemySpawns.style.height = '30px';
-  newEnemySpawns.style.backgroundColor = 'green';
-  newEnemySpawns.style.transform = `translate(${newEnemys.positionX}px, ${newEnemys.positionX}px)`;
-  speelveld.appendChild(newEnemySpawns);
+function removeEnemy(enemyNumber, enemyId) {
 
-  enemys.push({
-    element: newEnemySpawns,
-    idName: newEnemySpawns.id,
-    x: newEnemys.positionX,
-    y: newEnemys.positionY,
-    speed: newEnemys.speed,
-    healtPoint: newEnemys.healtPoint,
-    angle: enemyAngle
-  });
+  const enemyToRemove = document.getElementById(enemyId);
+  const xpbar = document.getElementById('xp-progression');
+
+  if (enemyToRemove) enemyToRemove.remove();
+  enemys.splice(enemyNumber, 1);
+  enemysAlive -= 1;
+
+  playerXp += 10;
+  coins += 2;
+  currentXp = playerXp / playerXpToNextLvl * 100;
+
+  if (currentXp >= 100) {
+    currentXp = 0;
+    playerXp = 0;
+    playerXpToNextLvl = playerXpToNextLvl * 1.4;
+    xpbar.style.width = `${currentXp}%`;
+    const lvlUp = document.getElementById('playerLvl');
+    lvlUp.textContent = `LVL: ${playerLvl += 1}`;
+  } else {
+    xpbar.style.width = `${currentXp}%`;
+  }
   
+  if (enemysAlive == 0) {
+    waveOver();
+  }
+}
+
+function waveOver() {
+  const wave = document.getElementById('wave-container');
+  const shop = document.getElementById('shop-container');
+
+  currentWave += 1;
+
+  wave.textContent = `Wave: ${currentWave}`;
+  shop.style.display = 'flex';
+  
+    // enemyToSpawn = totalEnemys * 1.5;
+    // enemysAlive = enemyToSpawn;
+    // totalEnemys = 0;
+    // pauseGame = true;
+    // pauseScreen.style.display = 'flex';
 }
 
 // loop voor de animaties
-function animationLoop() {
-  updatePosition();
-  updateBullets();
-  updateEnemyPosition();
-  followMouseUpdate();
+function animationLoop(now) {
+  if (pauseGame == false && enemysAlive > 0) {
+    updatePosition();
+    updateBullets();
+    updateEnemyPosition();
+    followMouseUpdate();
+
+    if (!now && enemyToSpawn != 0|| now - lastTime >= 2*1000 && enemyToSpawn != 0) {
+      lastTime = now;
+      enemySpawn();
+    }
+  }
   requestAnimationFrame(animationLoop);
 }
 
+
 // start de loop van de animaties
-animationLoop();
-enemySpawn(lastPositionX, lastPositionY);
+animationLoop(0);
+
