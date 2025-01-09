@@ -1,10 +1,12 @@
-let pauseGame = false;
+let pauseGame = true;
 
 const speler = document.getElementById('playerBase');
 const speelveld = document.getElementById('playing-field');
 const pauseScreen = document.getElementById('pause-container');
 const weapon = document.getElementById('player');
 const bullet = document.getElementById('bullet');
+const audio = document.getElementById('background-music');
+
 
 let positionX = speelveld.clientWidth / 2 - 25; 
 let positionY = speelveld.clientHeight / 2 - 25;
@@ -38,7 +40,8 @@ let playerXp = 0;
 let playerXpToNextLvl = 100;
 let coins = 0;
 
-var lastTime = 0;
+let lastTime = 0;
+let spawnSpeed = 2000;
 
 class enemy {
   constructor(positionX, positionY, speed, healtPoint, type) {
@@ -48,7 +51,6 @@ class enemy {
       this.healtPoint = healtPoint;
       this.type = type;
   }
-
 }
 
 // wordt uit gevoerd of een toets wordt in gedrukt of wordt los gelaten
@@ -99,10 +101,23 @@ window.addEventListener('click', (e) => {
 
 });
 
+
+// functie om het spel te pauzeren en te hervatten of te stoppen
 function pausedGame(buttonName) {
   if (buttonName == 'resume') {
     pauseGame = false;
     pauseScreen.style.display = 'none';
+  }
+}
+
+function gameMenu(buttonName) {
+  if (buttonName == 'start') {
+    const startScreen = document.getElementById('head-menu');
+    pauseGame = false;
+    startScreen.style.display = 'none';
+    audio.play();
+  } else if (buttonName == 'settings') {
+    
   }
 }
 
@@ -310,7 +325,7 @@ function waveOver() {
   const shop = document.getElementById('shop-container');
 
   currentWave += 1;
-
+  spawnSpeed = spawnSpeed * 0.98;
   wave.textContent = `Wave: ${currentWave}`;
   shop.style.display = 'flex';
   
@@ -329,7 +344,7 @@ function animationLoop(now) {
     updateEnemyPosition();
     followMouseUpdate();
 
-    if (!now && enemyToSpawn != 0|| now - lastTime >= 2*1000 && enemyToSpawn != 0) {
+    if (!now && enemyToSpawn != 0|| now - lastTime >= spawnSpeed && enemyToSpawn != 0) {
       lastTime = now;
       enemySpawn();
     }

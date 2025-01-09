@@ -4,20 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/style.css">
-    
+    <link rel="icon" type="image/x-icon" href="assets/img/santas_last_stand_logo.png">
+
     <script src="assets/js/script.js" defer></script>
     <script src="assets/js/enemys.js" defer></script>
 
-    <title>Document</title>
+    <title>Santa's last stand</title>
 </head>
 <body>
+    <audio controls autoplay loop>
+        <source src="assets/audio/Killing_Floor_2.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="pause-container">
         <div id="pause-menu">
             <h1 id="paused-text">Paused</h1>
-            <button class="pause-buttons" id="resume-button" onclick="pausedGame('resume')">Resume</button>
-            <button class="pause-buttons" id="restart-button" onclick="pausedGame('restart')">Restart</button>
-            <button class="pause-buttons" id="quit-button" onclick="pausedGame('quit')">Quit</button>
+            <button class="pause-buttons" onclick="pausedGame('resume')">Resume</button>
+            <button class="pause-buttons" onclick="pausedGame('restart')">Restart</button>
+            <button class="pause-buttons" onclick="pausedGame('quit')">Quit</button>
         </div>	
+    </div>
+    <div id="head-menu">
+        <div id="menu">
+            <h1 id="game-title">Santa's Last Stand</h1>
+            <div id="menu-buttons-container">
+                <button class="menu-buttons" onclick="gameMenu('start')">Start</button>
+                <button class="menu-buttons" onclick="gameMenu('settings')">Settings</button>
+                <button class="menu-buttons" onclick="gameMenu('quit')">Quit</button>
+            </div>
+        </div>
     </div>
     <div id="playing-field">
         <div id="xp-container">

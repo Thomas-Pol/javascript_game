@@ -6,6 +6,75 @@ body {
     overflow: hidden;
 }
 
+#background-music {
+    display: none;
+}
+
+/* alles voor het hoofd menu */
+#head-menu {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background-image: url(../img/santas_last_stand_background_menu.png);
+    z-index: 5;
+}
+#menu {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    gap: 10px;
+}
+
+#game-title {
+    text-align: center;
+    width: 100%;
+    font-size: 50px;
+    font-family: monospace;
+    color: white;
+    padding: 0;
+    margin: 0;
+}
+
+#menu-buttons-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu-buttons {
+    background-color: #fff;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-buttons:hover {
+    background-color: #f90;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.menu-buttons:active {
+    transform: scale(1.05);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+
+/* alles voor het pauze scherm */
 #pause-container {
     position: absolute;
     width: 100vw;
@@ -40,8 +109,29 @@ body {
 .pause-buttons {
     width: 25%;
     height: 15%;
+    background-color: #fff;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    /* padding: 15px 30px; */
+    font-size: 1.2rem;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
+.pause-buttons:hover {
+    background-color: #f90;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.pause-buttons:active {
+    transform: scale(1.05);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* alles voor het speelveld */
 #playing-field {
     width: 100vw;
     height: 100vh;
