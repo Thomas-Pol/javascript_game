@@ -12,16 +12,19 @@ body {
 
 /* alles voor het hoofd menu */
 #head-menu {
-    position: absolute;
     width: 100vw;
     height: 100vh;
     background-image: url(../img/santas_last_stand_background_menu.png);
     z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: end;
 }
 #menu {
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.1);
+    width: 45vw;
+    height: 50vh;
+    margin-right: 3vw;
+    background-color: white;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
@@ -31,12 +34,51 @@ body {
     gap: 10px;
 }
 
+#settings {
+    width: 45vw;
+    height: 50vh;
+    margin-right: 3vw;
+    background-color: white;
+    border-radius: 15px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    gap: 10px;
+}
+
+#back {
+    margin-top: 2vh;
+    margin-left: 1vw;
+    width: 5vw;
+    height: 5vh;
+    background-color: #fff;
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#back:hover {
+    background-color: #f90;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+#back:active {
+    transform: scale(1.05);
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 #game-title {
     text-align: center;
     width: 100%;
     font-size: 50px;
     font-family: monospace;
-    color: white;
+    color: rgb(0, 0, 0);
     padding: 0;
     margin: 0;
 }
@@ -59,6 +101,7 @@ body {
     margin: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .menu-buttons:hover {
@@ -118,6 +161,7 @@ body {
     margin: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .pause-buttons:hover {
@@ -131,48 +175,101 @@ body {
     box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* alles voor het speelveld */
-#playing-field {
+/* alles voor het shopo menu */
+#shop-container{
     width: 100vw;
     height: 100vh;
+    display: none;
+    background-color: #f90;
+}
+
+/* alles voor het speelveld */
+#playing-field {
+    width: 100%;
+    height: 100%;
     background-color: rgb(240, 240, 240);
-    overflow: hidden;
+    /* display: none; */
+    /* overflow: hidden; */
+}
+
+#tileset {
+    user-select: none;
+    width: 300%;
+    height: 300%;
+    position: absolute;
+    background: url('../img/snowfloor.png') repeat;
+    background-size: 100px 100px;
+    /* transform: translate(0, 0); */
+}
+
+#stats-container{
+    position: absolute;
+    width: 20vw;
+    height: 20vh;
+    margin-left: 1%;
+    margin-top: 1%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    z-index: 1;
+}
+
+#wave-container {
+    width: 100%;
+    margin-top: 1%;
+    margin-left: 2%;
+    font-size: 20px;
+    font-family: monospace;
+    user-select: none;
 }
 
 #xp-container {
-    position: absolute;
     margin-top: 3%;
     margin-left: 2%;
-    width: 20%;
-    height: 3%;
+    width: 100%;
+    height: 15%;
     border-radius: 7px;
     border: 1px solid black;
 }
 
 #xp-progression {
-    position: absolute;
     background-color: green;
     height: 100%;
     width: 0%;
     border-radius: 6px;
 }
 
-#playerLvl {
+#playerHealt {
     margin: 0;
-    width: 95%;
-    height: 100%;
-    text-align: right;
-    position: absolute;
+    margin-left: 2%;
+    margin-top: 1%;
+    width: 48%;
+    height: 15%;
+    /* position: absolute; */
     font-size: 15px;
     font-family: monospace;
     user-select: none;
 }
 
-#wave-container {
-    position: absolute;
+#playerLvl {
+    margin: 0;
     margin-top: 1%;
+    width: 50%;
+    height: 15%;
+    text-align: right;
+    /* position: absolute; */
+    font-size: 15px;
+    font-family: monospace;
+    user-select: none;
+}
+
+#coins {
+    margin: 0;
     margin-left: 2%;
-    font-size: 20px;
+    width: 48%;
+    height: 100%;
+    /* position: absolute; */
+    font-size: 15px;
     font-family: monospace;
     user-select: none;
 }
@@ -228,4 +325,3 @@ body {
     position: absolute;
     z-index: 4;
 }
-

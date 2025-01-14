@@ -12,10 +12,22 @@
     <title>Santa's last stand</title>
 </head>
 <body>
-    <audio controls autoplay loop>
+    <audio autoplay loop id="background-music">
         <source src="assets/audio/Killing_Floor_2.mp3" type="audio/mpeg">
     </audio>
-
+    <div id="head-menu">
+        <div id="menu">
+            <h1 id="game-title">Santa's Last Stand</h1>
+            <div id="menu-buttons-container">
+                <button class="menu-buttons" onclick="gameMenu('start')">Start</button>
+                <button class="menu-buttons" onclick="gameMenu('settings')">Settings</button>
+                <button class="menu-buttons" onclick="gameMenu('login')">Login</button>
+            </div>
+        </div>
+        <div id="settings">
+            <button id="back" onclick="gameMenu('back')">&#8592;</button>
+        </div>
+    </div>
     <div id="pause-container">
         <div id="pause-menu">
             <h1 id="paused-text">Paused</h1>
@@ -24,23 +36,20 @@
             <button class="pause-buttons" onclick="pausedGame('quit')">Quit</button>
         </div>	
     </div>
-    <div id="head-menu">
-        <div id="menu">
-            <h1 id="game-title">Santa's Last Stand</h1>
-            <div id="menu-buttons-container">
-                <button class="menu-buttons" onclick="gameMenu('start')">Start</button>
-                <button class="menu-buttons" onclick="gameMenu('settings')">Settings</button>
-                <button class="menu-buttons" onclick="gameMenu('quit')">Quit</button>
-            </div>
-        </div>
+    <div id="shop-container">
+
     </div>
     <div id="playing-field">
-        <div id="xp-container">
-            <div id="xp-progression">
+    <div id="tileset"></div>
+        <div id="stats-container">
+            <div id="wave-container">Wave: 1</div>
+            <div id="xp-container">
+                <div id="xp-progression"></div>
             </div>
+            <p id="playerHealt">Hp: 10</p>
             <p id="playerLvl">LVL: 1</p>
+            <div id="coins">Coins: 0</div>
         </div>
-        <div id="wave-container">Wave: 1</div>
         <div id="playerBase">
             <div id="player">
                 <img id="playerSantaHat" src="assets/img/santahat-removebg-preview.png" alt="">
