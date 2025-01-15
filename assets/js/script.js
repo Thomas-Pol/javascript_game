@@ -1,6 +1,7 @@
 let pauseGame = true;
 
 const speler = document.getElementById('playerBase');
+const spelerSkin = document.getElementById('player-skin');
 const speelveld = document.getElementById('playing-field');
 const tileset = document.getElementById('tileset');
 const pauseScreen = document.getElementById('pause-container');
@@ -13,8 +14,8 @@ const loginScreen = document.getElementById('login');
 const menuScreen = document.getElementById('menu');
 
 const originalPositions = {
-  playerPositionX: speelveld.clientWidth / 2 - 25,
-  playerPositionY: speelveld.clientHeight / 2 - 25,
+  playerPositionX: speelveld.clientWidth / 2 - 40,
+  playerPositionY: speelveld.clientHeight / 2 - 40,
   lastPlayerPositionX: 0,
   lastPlayerPositionY: 0,
   bulletCenterX: speelveld.clientWidth / 2 - 2.5,
@@ -30,13 +31,23 @@ const tilesetPositions = {
 let lastMouseXPosition = 0;
 let lastMouseYPosition = 0;
 
-let keys = {};
+let keys = {
+  w: false,
+  a: false,
+  s: false,
+  d: false
+};
 
 let bullets = [];
 let bulletCounter = 0;
 let bulletSpeed = 7;
 
 let enemys = [];
+let playerAnimationFrames = [
+  idle = 'assets/img/idle_sheet.png',
+  walk = 'assets/img/run_sheet.png',
+  hit = 'assets/img/hit_sheet.png',
+]
 
 const originalWaveStats = {
   currentWave: 1,
@@ -53,7 +64,9 @@ const originalPlayerStats = {
   playerLvl: 1,
   playerXp: 0,
   playerXpToNextLvl: 100,
-  coins: 0
+  coins: 0,
+  animationFrame: 0,
+  status: 'idle'
 }
 let currentPlayerStats = {...originalPlayerStats};
 
@@ -75,6 +88,10 @@ window.addEventListener('load', () => {
 // wordt uit gevoerd of een toets wordt in gedrukt of wordt los gelaten
 window.addEventListener('keydown', (e) => {
   keys[e.key] = true;
+
+  if (e.key == 'w' || e.key == 'a' || e.key == 's' || e.key == 'd'){
+    currentPlayerStats.status = 'walking';
+  }
   if	(e.key == 'Escape' && pauseGame == false) {
     pauseGame = true;
     pauseScreen.style.display = 'flex';
@@ -86,6 +103,10 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keyup', (e) => {
   keys[e.key] = false;
+  if (keys['w'] == false && keys['a'] == false && keys['s'] == false && keys['d'] == false) {
+    currentPlayerStats.status = 'idle';
+  }
+  
 });
 
 // laat het wapen de muis volgen
@@ -98,8 +119,8 @@ window.addEventListener('mousemove', (e) => {
     lastMouseYPosition = e.clientY;
 
     // het middenpunt van het wapen
-    let weaponCenterX = currentPositions.playerPositionX + 25; 
-    let weaponCenterY = currentPositions.playerPositionY + 25;
+    let weaponCenterX = currentPositions.playerPositionX + 40; 
+    let weaponCenterY = currentPositions.playerPositionY + 40;
 
     // berekent de hoek van de muis ten opzichte van het wapen
     let weaponAngle = Math.atan2(mouseY - weaponCenterY, mouseX - weaponCenterX);
@@ -214,16 +235,60 @@ function updatePosition() {
   tileset.style.transform = `translate(${tilesetPositions.x}px, ${tilesetPositions.y}px)`;
 
   // zorgt ervoor dat de speler/shietpunt niet buiten het beeldscherm kan komen
-  currentPositions.playerPositionX = Math.max(0, Math.min(speelveld.clientWidth - 50, currentPositions.playerPositionX));
-  currentPositions.playerPositionY = Math.max(0, Math.min(speelveld.clientHeight - 50, currentPositions.playerPositionY));
+  currentPositions.playerPositionX = Math.max(0, Math.min(speelveld.clientWidth - 80, currentPositions.playerPositionX));
+  currentPositions.playerPositionY = Math.max(0, Math.min(speelveld.clientHeight - 80, currentPositions.playerPositionY));
 
-  currentPositions.bulletCenterX = Math.max(25, Math.min(speelveld.clientWidth - 25, currentPositions.bulletCenterX));
-  currentPositions.bulletCenterY = Math.max(25, Math.min(speelveld.clientHeight - 25, currentPositions.bulletCenterY));
+  currentPositions.bulletCenterX = Math.max(40, Math.min(speelveld.clientWidth - 40, currentPositions.bulletCenterX));
+  currentPositions.bulletCenterY = Math.max(40, Math.min(speelveld.clientHeight - 40, currentPositions.bulletCenterY));
 
   currentPositions.lastPlayerPositionX = currentPositions.playerPositionX;
   currentPositions.lastPlayerPositionY = currentPositions.playerPositionY;
 
   speler.style.transform = `translate(${currentPositions.playerPositionX}px, ${currentPositions.playerPositionY}px)`;
+}
+
+function playerAnimation() {
+  currentPlayerStats.animationFrame += 1;
+  let animationtimer = currentPlayerStats.animationFrame;
+    switch(currentPlayerStats.status) {
+      case "idle":
+        spelerSkin.style.backgroundImage = `url(${playerAnimationFrames[0]})`;
+        animationtimer = animationtimer * 2;
+        break;
+      case "walking":
+        spelerSkin.style.backgroundImage = `url(${playerAnimationFrames[1]})`;
+        break;
+      case "hit":
+        spelerSkin.style.backgroundImage = `url(${playerAnimationFrames[2]})`;
+        break;
+    }
+
+      if (keys['a'] == true && keys['d'] == true) {
+        spelerSkin.style.transform = spelerSkin.style.transform;
+      } else {
+        if (keys['a'] == true && keys['d'] == false ) {
+          spelerSkin.style.transform = 'scaleX(-1)';
+        }
+        if (keys['d'] == true && keys['a'] == false) {
+          spelerSkin.style.transform = 'scaleX(1)';
+        }
+      }
+   
+
+    if(currentPlayerStats.animationFrame <= 1) {
+      spelerSkin.style.backgroundPositionX = '0px';
+    } else if(currentPlayerStats.animationFrame > 1 && currentPlayerStats.animationFrame <= 2) {
+      spelerSkin.style.backgroundPositionX = '400px';
+    } else if(currentPlayerStats.animationFrame > 2 && currentPlayerStats.animationFrame <= 3) {
+      spelerSkin.style.backgroundPositionX = '320px';
+    } else if(currentPlayerStats.animationFrame > 3 && currentPlayerStats.animationFrame <= 4) {
+      spelerSkin.style.backgroundPositionX = '240px';
+    } else if (currentPlayerStats.animationFrame > 4 && currentPlayerStats.animationFrame <= 5) {
+      spelerSkin.style.backgroundPositionX = '160px';
+    } else if (currentPlayerStats.animationFrame > 5 && currentPlayerStats.animationFrame <= 6) {
+      spelerSkin.style.backgroundPositionX = '80px';
+      currentPlayerStats.animationFrame = 0;
+    }
 }
 
 // functie om de positie van de kogels te updaten
@@ -243,7 +308,7 @@ function updateBullets() {
     let bulletHitEnemy = false;
 
     enemys.forEach(enemyData => {
-      if(bulletData.x >= enemyData.x && bulletData.x <= enemyData.x + 30 && bulletData.y >= enemyData.y && bulletData.y <= enemyData.y + 30) {
+      if(bulletData.x >= enemyData.x && bulletData.x <= enemyData.x + 75 && bulletData.y >= enemyData.y && bulletData.y <= enemyData.y + 85) {
         
         enemyData.healtPoint -= 10;
         const enemyHpBar = document.getElementById(`${enemyData.hpId}`);
@@ -275,7 +340,7 @@ function updateEnemyPosition() {
   enemys = enemys.filter(enemyData => {
   
     enemyAngleCheck = Math.atan2(currentPositions.lastPlayerPositionY - enemyData.y, currentPositions.lastPlayerPositionX - enemyData.x);
-    console.log(enemyAngleCheck);
+
     enemyData.animation += 1;
     const enemyAnimationSprite = document.getElementById(`${enemyData.idName}`);
 
@@ -286,7 +351,15 @@ function updateEnemyPosition() {
       enemyData.x += Math.cos(enemyAngleCheck) * enemyData.speed;
       enemyData.y += Math.sin(enemyAngleCheck) * enemyData.speed;
     }
+    let rotateAngle = 1;
 
+    if (enemyAngleCheck <= -1.5 || enemyAngleCheck >= 1.5) {
+      rotateAngle = 1;
+      
+    } else if (enemyAngleCheck >= -1.5 || enemyAngleCheck <= 1.5) {
+      rotateAngle = -1;
+
+    }
     
     if(enemyData.animation <= 60) {
       enemyAnimationSprite.style.backgroundPositionX = '0px';
@@ -301,8 +374,7 @@ function updateEnemyPosition() {
     }
 
     // update de positie van de vijand
-    enemyData.element.style.transform = `translate(${enemyData.x}px, ${enemyData.y}px)`;
-
+    enemyData.element.style.transform = `translate(${enemyData.x}px, ${enemyData.y}px) scaleX(${rotateAngle})`;
     return true;
   });
 }
@@ -311,8 +383,8 @@ function followMouseUpdate() {
 
   if(lastMouseXPosition != 0 && lastMouseYPosition != 0) {
   // het middenpunt van het wapen
-  let weaponCenterX = currentPositions.playerPositionX + 25; 
-  let weaponCenterY = currentPositions.playerPositionY + 25;
+  let weaponCenterX = currentPositions.playerPositionX + 40; 
+  let weaponCenterY = currentPositions.playerPositionY + 40;
 
   // berekent de hoek van de muis ten opzichte van het wapen
   let weaponAngle = Math.atan2(lastMouseYPosition - weaponCenterY, lastMouseXPosition - weaponCenterX);
@@ -329,8 +401,8 @@ function shootBullet(targetX, targetY) {
   if(pauseGame == false) {
     // zorgt er voor dat de kogel met de goede angle weg schieten
     const angle = Math.atan2(targetY - currentPositions.bulletCenterY, targetX - currentPositions.bulletCenterX);
-    let shootBulletX = currentPositions.bulletCenterX + Math.cos(angle) * 50;
-    let shootBulletY = currentPositions.bulletCenterY + Math.sin(angle) * 50;
+    let shootBulletX = currentPositions.bulletCenterX + Math.cos(angle) * 80;
+    let shootBulletY = currentPositions.bulletCenterY + Math.sin(angle) * 80;
 
     // maakt een nieuwe kogel element aan
     const newBullet = document.createElement('div');
@@ -375,15 +447,16 @@ function enemySpawn() {
   const newEnemySpawn = document.createElement('div');
   newEnemySpawn.id = `enemy${currentWaveStats.totalEnemys}`;
   newEnemySpawn.className = 'enemy';
-  // newEnemySpawn.style.position = 'absolute';
   newEnemySpawn.style.width = '75px';
   newEnemySpawn.style.height = '85px';
-  newEnemySpawn.style.backgroundColor = 'green';
   newEnemySpawn.style.backgroundImage = 'url(assets/img/snowmanSpriteSheetTest.png)';
   newEnemySpawn.style.backgroundSize = '300px 170px';
   newEnemySpawn.style.backgroundPositionX = '0px';
   newEnemySpawn.style.backgroundPositionY = '0px';
+  newEnemySpawn.style.backgroundColor = 'transparent';
   newEnemySpawn.style.position = 'absolute';
+  newEnemySpawn.style.display = 'flex';
+  newEnemySpawn.style.justifyContent = 'center';
   newEnemySpawn.style.pointerEvents = 'none';
   newEnemySpawn.style.transform = `translate(${newEnemy.positionX}px, ${newEnemy.positionY}px)`;
   speelveld.appendChild(newEnemySpawn);
@@ -398,12 +471,14 @@ function enemySpawn() {
   enemyHpBar.style.backgroundColor = 'red';
   enemyHpBar.style.position = 'absolute';
   enemyHpBar.style.top = '90px';
+  enemyHpBar.style.transform = 'scaleX(1)';
  
   newestEnemy.appendChild(enemyHpBar);
 
   enemys.push({
     element: newEnemySpawn,
     idName: newEnemySpawn.id,
+    elementHP: enemyHpBar,
     hpId: enemyHpBar.id,
     x: newEnemy.positionX,
     y: newEnemy.positionY,
@@ -464,6 +539,7 @@ function waveOver() {
   wave.textContent = `Wave: ${currentWaveStats.currentWave}`;
   
   shop.style.display = 'flex';
+  // shop.style.transform = `translate(${tilesetPositions.x}px, ${tilesetPositions.y}px)`;
   currentWaveStats.enemyToSpawn = currentWaveStats.totalEnemys * 1.5;
   currentWaveStats.enemysAlive = currentWaveStats.enemyToSpawn;
   currentWaveStats.totalEnemys = 0;
@@ -473,18 +549,24 @@ function waveOver() {
 function animationLoop(now) {
   if (pauseGame == false && currentWaveStats.enemysAlive > 0) {
     updatePosition();
+    // playerAnimation();
     updateBullets();
-    updateEnemyPosition();
+    // updateEnemyPosition();
     followMouseUpdate();
+
+    if (!now && currentWaveStats.enemyToSpawn != 0 || now - lastTime >= 100 && currentWaveStats.enemyToSpawn != 0) {
+      lastTime = now;
+      playerAnimation();
+    }
 
     if (!now && currentWaveStats.enemyToSpawn != 0 || now - lastTime >= spawnSpeed && currentWaveStats.enemyToSpawn != 0) {
       lastTime = now;
-      enemySpawn();
+      // enemySpawn();
     }
   }
   requestAnimationFrame(animationLoop);
 }
-
+// enemySpawn();
 
 // start de loop van de animaties
 animationLoop(0);

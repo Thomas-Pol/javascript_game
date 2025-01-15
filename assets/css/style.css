@@ -175,12 +175,14 @@ body {
     box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* alles voor het shopo menu */
+/* alles voor het shop menu */
 #shop-container{
+    position: fixed;
     width: 100vw;
     height: 100vh;
     display: none;
     background-color: #f90;
+    z-index: 10;
 }
 
 /* alles voor het speelveld */
@@ -276,22 +278,23 @@ body {
 
 #playerBase {
     position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: red;
-    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    /* background-image: url(../img/run_sheet.png);
+    background-size: 480px 80px;
+    background-position-x: 400px;
+    background-position-y: 0; */
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: visible;
     z-index: 1;
+    /* transform: scaleX(1); */
 }
 
 #player {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(black, greenyellow);
+    width: 80px;
+    height: 80px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -301,10 +304,16 @@ body {
     user-select: none;
 }
 
-#playerSantaHat {
-    width: 100%;
-    height: 100%;
-    user-select: none;
+#player-skin {
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    background-image: url(../img/run_sheet.png);
+    background-size: 480px 80px;
+    background-position-x: 400px;
+    background-position-y: 0;
+    z-index: 2;
+    transform: scaleX(-1);
 }
 
 #weapon {
@@ -314,7 +323,7 @@ body {
     overflow: visible;
     position: absolute;
     z-index: 3;
-    left: 55px;
+    left: 85px;
 }
 
 #bullet {
